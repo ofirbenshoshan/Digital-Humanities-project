@@ -1,5 +1,3 @@
-import pywinauto
-from pywinauto.application import Application
 import pyautogui
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
