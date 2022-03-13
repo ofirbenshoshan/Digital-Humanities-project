@@ -1,5 +1,7 @@
+# from selenium import webdriver
 import time
 import os
+# import requests
 import subprocess
 import shutil
 from os import listdir
@@ -35,7 +37,6 @@ def gender_and_approach(file_path, sep="\t", encoding='utf8'):
     Returns: [g,a]
         g = 1 - if female, 0 - if male, -1 if no gender
         a = 1 - if positive, 0 - if negative
-
     """
     with open(file_path, encoding='utf8') as f:
             data = f.readlines()
@@ -74,7 +75,6 @@ def read_conll_file(file_path, file_path2, sep="\t", encoding='utf8'):
             Defaults to utf8.
 
     Returns: False if the analyse is not the same, and True otherwise
-
     """
     with open(file_path, encoding='utf8') as f:
         with open(file_path2, encoding='utf8') as f2:
@@ -90,8 +90,16 @@ def read_conll_file(file_path, file_path2, sep="\t", encoding='utf8'):
     return True
 
 def tsv_to_txt(name_tsv, name_txt):
-    import csv
+    """
+        Reads a file in tsv format and copy data to txt file
 
+        Args:
+            name_tsv (str): path of tsv file.
+            name_txt (str): path of txt file.
+
+        Returns: NONE
+    """
+    import csv
     # Open tsv and txt files(open txt file in write mode)
     tsv_file = open(name_tsv, encoding="utf8")
     txt_file = open(name_txt, "w", encoding="utf8")
@@ -110,6 +118,15 @@ def tsv_to_txt(name_tsv, name_txt):
     txt_file.close()
 
 def compar_word(wordyap, worddicta):
+    """
+       helper function that compare words in dicta analyse to word in yap analyse
+
+        Args:
+            wordyap (str): word from yap analyse.
+            worddicta (str): word from dicta analyse.
+
+        Returns: True if they the same word, else return False
+    """
     newworddicta = remove_niqqud_from_string(worddicta)
     if newworddicta != wordyap:
         i1 = 0
@@ -127,6 +144,16 @@ def compar_word(wordyap, worddicta):
     return True
 
 def comper_number_of_nodes(content_yap,content_dicta):
+    """
+       helper function that compare the number of nodes in the morphological analyse in dicta to the
+       nodes in the morphological analyse in yap
+
+        Args:
+            content_yap (str): result of morphological analyse of yap.
+            content_dicta (str): result of morphological analyse of dicta.
+
+        Returns: True if they have the same number of nodes, else return False
+    """
     yapwords = content_yap[len(content_yap)-2].split('\t')
     dictawords = content_dicta[len(content_dicta)-2].split('\t')
     print(yapwords)
@@ -138,6 +165,18 @@ def comper_number_of_nodes(content_yap,content_dicta):
     return True
 
 def dicta_to_yap(file_dicta_tsv,file_dicta,file_yap_map,file_yap):
+    """
+       helper function that change the structure of Dicta's morphological analysis, to the
+        structure of yap's morphological analysis.
+
+        Args:
+            file_dicta_tsv (str): result of morphological analyse of dicta in tsv.
+            file_dicta (str): result of morphological analyse of dicta in txt.
+            file_yap_map (str): result of morphological analyse of yap in tsv.
+            file_yap (str): result of morphological analyse of dicta in txt.
+
+        Returns: True if we were able to change, else return False. the result of the change is in file_yap_map
+    """
     tsv_to_txt(file_dicta_tsv, file_dicta)
     tsv_to_txt(file_yap_map, file_yap)
     with open(file_yap, 'r', encoding="utf8") as fp:
@@ -183,6 +222,21 @@ def dicta_to_yap(file_dicta_tsv,file_dicta,file_yap_map,file_yap):
     return True
 
 def run_yap_on_execl():
+    """
+       A function that goes through all the sentences in the collection,
+       and performs syntactic analyzes of yap and dicta on each sentence.
+       And finally compares the analyzes:
+       if the analyzes are compatible - we will check whether the sentence
+        uses a male / female / both / gender-free referral, and whether the
+         referral is made in the negative / positive.
+
+        Args:
+
+        Returns: for sentences whose syntactic analysis does match -
+        counters = [# nogender,# male,# female,# negative,# positive,# wronganalys],
+         in the other hand for sentences whose syntactic analysis does not match - 
+         the results are saved in order to analyze them manually.
+    """
     file_yap = "C:\\OFIR\\output.txt"
     file_yap_map = "C:\\OFIR\\output.mapping"
     file_dicta = "C:\\OFIR\\MorphologyResults.ud.txt"
@@ -304,7 +358,6 @@ def run_yap_on_execl():
 
 def main():
     run_yap_on_execl()
-    
+
 if __name__ == '__main__':
     main()
-
