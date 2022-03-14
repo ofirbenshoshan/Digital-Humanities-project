@@ -314,7 +314,11 @@ def run_yap_on_execl():
             original = pathtoDOWNLOADS + "\\MorphologyResults.ud.tsv" #r'C:\Users\a0491561\Downloads\MorphologyResults.ud.tsv'
             target = pathtoSAVEfiles + "\\MorphologyResults.ud.tsv" #r'C:\OFIR\MorphologyResults.ud.tsv'
             shutil.move(original, target)
-
+            
+            file_yap = pathtoSAVEfiles+"\\output.txt"
+            file_yap_map = pathtoSAVEfiles+"\\output.mapping"
+            file_dicta = pathtoSAVEfiles+"\\MorphologyResults.ud.txt"
+            file_dicta_tsv = pathtoSAVEfiles+"\\MorphologyResults.ud.tsv"
             numberOfNodes = dicta_to_yap(file_dicta_tsv,file_dicta,file_yap_map,file_yap)
             if not numberOfNodes: # number of nodes doesnt equal , need to check manually
                 print(319)
