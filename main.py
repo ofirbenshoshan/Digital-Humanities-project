@@ -221,6 +221,32 @@ def dicta_to_yap(file_dicta_tsv,file_dicta,file_yap_map,file_yap):
         fp.write("\n")
     return True
 
+def save_files(pathtoSAVEfiles,number_of_sentence):
+    new_dir = pathtoSAVEfiles + "\\" + str(number_of_sentence)  # 'C:\\OFIR\\{}'.format(number_of_sentence)
+    os.mkdir(new_dir)
+    for f in listdir(pathtoSAVEfiles):
+        if isfile(join(pathtoSAVEfiles, f)) and "sentences" not in f:
+            original = join(pathtoSAVEfiles, f)
+            target = join(new_dir, f)
+            shutil.move(original, target)
+
+def delete_files(pathtoSAVEfiles):
+    for f in listdir(pathtoSAVEfiles):
+        if isfile(join(pathtoSAVEfiles, f)) and "sentences" not in f:
+            file = join(pathtoSAVEfiles, f)
+            os.remove(file)
+
+file_yap = "C:\\OFIR\\output.txt"
+file_yap_map = "C:\\OFIR\\output.mapping"
+file_dicta = "C:\\OFIR\\MorphologyResults.ud.txt"
+file_dicta_tsv = "C:\\OFIR\\MorphologyResults.ud.tsv"
+file_name = "C:\\OFIR\\sentences.txt"
+pathtoYAPexe = "C:\\OFIR\\yapproj\\src\\yap"
+pathtoSAVEfiles = "C:\\OFIR"
+pathtointerpreter38 = "C:\\ti\\lunas2\\python\\Scripts\\python.exe"
+pathtoDOWNLOADS = "C:\\Users\\a0491561\\Downloads"
+pathtodictaAnalyseSCRIPT = "C:\\OFIR\\morpoProj\\dictaAnalyse.py"
+
 def run_yap_on_execl():
     """
        A function that goes through all the sentences in the collection,
@@ -234,14 +260,9 @@ def run_yap_on_execl():
 
         Returns: for sentences whose syntactic analysis does match -
         counters = [# nogender,# male,# female,# negative,# positive,# wronganalys],
-         in the other hand for sentences whose syntactic analysis does not match - 
+         in the other hand for sentences whose syntactic analysis does not match -
          the results are saved in order to analyze them manually.
     """
-    file_yap = "C:\\OFIR\\output.txt"
-    file_yap_map = "C:\\OFIR\\output.mapping"
-    file_dicta = "C:\\OFIR\\MorphologyResults.ud.txt"
-    file_dicta_tsv = "C:\\OFIR\\MorphologyResults.ud.tsv"
-    file_name = "C:\\OFIR\\sentences.txt"
     counters = [0,0,0,0,0,0]#[nogender,male,female,negative,positive,wronganalys]
     with open(file_name, 'r', encoding="utf8") as fp:
         content = fp.readlines()
@@ -252,13 +273,14 @@ def run_yap_on_execl():
             print("***********************{}******************".format(number_of_sentence))
             print(s)
             s1 = s.split()
-            with open("C:\\OFIR\\yapproj\\src\\yap\\input.txt", 'w',encoding="utf8") as fp2:
+            path = pathtoYAPexe + "\\input.txt" # C:\\OFIR\\yapproj\\src\\yap\\input.txt"
+            with open(path, 'w',encoding="utf8") as fp2:
                 for line in s1:
                     fp2.write(line)
                     fp2.write("\n")
                 fp2.write("\n")
 
-            os.chdir("C:\\OFIR\\yapproj\\src\\yap")
+            os.chdir(pathtoYAPexe)
             p = os.system("cmd py -3.7-32 /c yap.exe hebma -raw input.txt -out input.lattice")
             time.sleep(3)
             p = os.system("cmd py -3.7-32 /c yap.exe md -in input.lattice -om output.mapping")
@@ -266,21 +288,21 @@ def run_yap_on_execl():
             p = os.system("cmd py -3.7-32 /c yap.exe dep -inl output.mapping -oc output.conll")
             time.sleep(3)
 
-            original = r'C:\OFIR\yapproj\src\yap\input.txt'
-            target = r'C:\OFIR\inputyap.txt'
+            original = pathtoYAPexe + "\\input.txt" #r'C:\OFIR\yapproj\src\yap\input.txt'
+            target = pathtoSAVEfiles + "\\inputyap.txt" #r'C:\OFIR\inputyap.txt'
             shutil.move(original, target)
-            original = r'C:\OFIR\yapproj\src\yap\input.lattice'
-            target = r'C:\OFIR\inputyap.lattice'
+            original = pathtoYAPexe + "\\input.lattice" #r'C:\OFIR\yapproj\src\yap\input.lattice'
+            target = pathtoSAVEfiles + "\\inputyap.lattice" #r'C:\OFIR\inputyap.lattice'
             shutil.move(original, target)
-            original = r'C:\OFIR\yapproj\src\yap\output.mapping'
-            target = r'C:\OFIR\output.mapping'
+            original = pathtoYAPexe + "\\output.mapping" #r'C:\OFIR\yapproj\src\yap\output.mapping'
+            target = pathtoSAVEfiles + "\\output.mapping" #r'C:\OFIR\output.mapping'
             shutil.move(original, target)
-            shutil.copyfile(target, r'C:\OFIR\outputyap.mapping')
-            original = r'C:\OFIR\yapproj\src\yap\output.conll'
-            target = r'C:\OFIR\outputyap.conll'
-            shutil.move(original, target)
+            shutil.copyfile(target, pathtoSAVEfiles+"\\outputyap.mapping")#r'C:\OFIR\outputyap.mapping')
+            original = pathtoYAPexe + "\\output.conll" #r'C:\OFIR\yapproj\src\yap\output.conll'
+            targetYap = pathtoSAVEfiles + "\\outputyap.conll" #r'C:\OFIR\outputyap.conll'
+            shutil.move(original, targetYap)
 
-            args = 'C:\\ti\\lunas2\\python\\Scripts\\python.exe C:\\OFIR\\morpoProj\\dictaAnalyse.py ' + s
+            args = pathtointerpreter38 + " " + pathtodictaAnalyseSCRIPT + " " + s
             print(args)
             proc = subprocess.Popen(args,
                                     shell=True,
@@ -289,69 +311,52 @@ def run_yap_on_execl():
                                     )
             proc.wait()
             time.sleep(3)
-            original = r'C:\Users\a0491561\Downloads\MorphologyResults.ud.tsv'
-            target = r'C:\OFIR\MorphologyResults.ud.tsv'
+            original = pathtoDOWNLOADS + "\\MorphologyResults.ud.tsv" #r'C:\Users\a0491561\Downloads\MorphologyResults.ud.tsv'
+            target = pathtoSAVEfiles + "\\MorphologyResults.ud.tsv" #r'C:\OFIR\MorphologyResults.ud.tsv'
             shutil.move(original, target)
 
             numberOfNodes = dicta_to_yap(file_dicta_tsv,file_dicta,file_yap_map,file_yap)
             if not numberOfNodes: # number of nodes doesnt equal , need to check manually
+                print(319)
                 counters[5]+=1
-                new_dir = 'C:\\OFIR\\{}'.format(number_of_sentence)
-                os.mkdir(new_dir)
-                for f in listdir('C:\\OFIR'):
-                    if isfile(join('C:\\OFIR', f)) and "sentences" not in f:
-                        original = join('C:\\OFIR', f)
-                        target = join(new_dir, f)
-                        shutil.move(original, target)
+                save_files(pathtoSAVEfiles, number_of_sentence)
                 continue
 
-            original = r'C:\OFIR\output.mapping'
-            target = r'C:\OFIR\yapproj\src\yap\output.mapping'
+            original = pathtoSAVEfiles + "\\output.mapping"
+            target = pathtoYAPexe + "\\output.mapping" #r'C:\OFIR\yapproj\src\yap\output.mapping'
             shutil.move(original, target)
 
-            os.chdir("C:\\OFIR\\yapproj\\src\\yap")
+            os.chdir(pathtoYAPexe)
             p = os.system("cmd py -3.7-32 /c yap.exe dep -inl output.mapping -oc output.conll")
 
             time.sleep(3)
-            original = r'C:\OFIR\yapproj\src\yap\output.mapping'
-            target = r'C:\OFIR\outputdicta.mapping'
+            original = pathtoYAPexe + "\\output.mapping" #r'C:\OFIR\yapproj\src\yap\output.mapping'
+            target = pathtoSAVEfiles + "\\outputdicta.mapping" #r'C:\OFIR\outputdicta.mapping'
             shutil.move(original, target)
-            original = r'C:\OFIR\yapproj\src\yap\output.conll'
-            target = r'C:\OFIR\outputdicta.conll'
-            shutil.move(original, target)
+            original = pathtoYAPexe + "\\output.conll" #r'C:\OFIR\yapproj\src\yap\output.conll'
+            targetDicta = pathtoSAVEfiles + "\\outputdicta.conll" #r'C:\OFIR\outputdicta.conll'
+            shutil.move(original, targetDicta)
 
             #check if column 3 is equal in yap(outputyap.conll) and dicta(outputdicta.conll), if not need to check manually
-            if not read_conll_file(r'C:\OFIR\outputdicta.conll', r'C:\OFIR\outputyap.conll'):
+            if not read_conll_file(targetDicta, targetYap):
+                print(341)
                 counters[5] += 1
-                new_dir = 'C:\\OFIR\\{}'.format(number_of_sentence)
-                os.mkdir(new_dir)
-                for f in listdir('C:\\OFIR'):
-                    if isfile(join('C:\\OFIR', f)) and "sentences" not in f:
-                        original = join('C:\\OFIR', f)
-                        target = join(new_dir, f)
-                        shutil.move(original, target)
+                save_files(pathtoSAVEfiles,number_of_sentence)
                 continue
 
             #same analays - now check: If the reference is in male or female  and positive or negative language
-            gYap, aYap = gender_and_approach(r'C:\OFIR\outputyap.conll')
-            gDicta, aDicta = gender_and_approach(r'C:\OFIR\outputdicta.conll')
+            gYap, aYap = gender_and_approach(targetYap)#r'C:\OFIR\outputyap.conll')
+            gDicta, aDicta = gender_and_approach(targetDicta)#r'C:\OFIR\outputdicta.conll')
             if gYap == gDicta and aYap == aDicta:
+                print(350)
                 counters[gYap+1]+=1
                 counters[aYap+3]+=1
                 #delete files
-                for f in listdir('C:\\OFIR'):
-                    if isfile(join('C:\\OFIR', f)) and "sentences" not in f:
-                        file = join('C:\\OFIR', f)
-                        os.remove(file)
+                delete_files(pathtoSAVEfiles)
             else:#check manually
+                print(356)
                 counters[5] += 1
-                new_dir = 'C:\\OFIR\\{}'.format(number_of_sentence)
-                os.mkdir(new_dir)
-                for f in listdir('C:\\OFIR'):
-                    if isfile(join('C:\\OFIR', f)) and "sentences" not in f:
-                        original = join('C:\\OFIR', f)
-                        target = join(new_dir, f)
-                        shutil.move(original, target)
+                save_files(pathtoSAVEfiles,number_of_sentence)
                 continue
     print(counters)
     return counters
@@ -361,3 +366,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
